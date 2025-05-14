@@ -3,6 +3,7 @@ from typing import Dict, Any, List, Optional, Union, Tuple
 from bot.storage import storage, save_website_data, load_website_data
 from bot.utils import parse_website_content, fetch_url_content
 from bot.config import CHECK_INTERVAL, debug_print, DEV_MODE
+from bot.special_site import SpecialSiteMonitor
 
 class WebsiteMonitor:
     def __init__(self, site_id: str, config: Dict[str, Any]):
@@ -90,12 +91,12 @@ class WebsiteMonitor:
                     except (ValueError, TypeError):
                         self.last_number = None
                         return False
+
             elif new_data and new_data != self.latest_numbers:
                 # Numbers have changed - check if last_number has moved from 0th position
                 if new_data and self.last_number is not None:
                     # Current last_number (as string with + prefix for comparison)
                     last_number_str = f"+{self.last_number}"
-
                     # 4. Find the position of the last_number in the new array
                     last_number_position = -1
                     for i, num in enumerate(new_data):
@@ -126,12 +127,12 @@ class WebsiteMonitor:
                         except (ValueError, TypeError):
                             pass
 
-                # 6. Update latest_numbers with full array
-                self.latest_numbers = new_data
-                self.flag_url = flag_url
-                await save_website_data(self.site_id)
-                # 7. Send notification with latest_numbers array
-                return True
+                    # 6. Update latest_numbers with full array
+                    self.latest_numbers = new_data
+                    self.flag_url = flag_url
+                    await save_website_data(self.site_id)
+                    # 7. Send notification with latest_numbers array
+                    return True
 
         return False
 

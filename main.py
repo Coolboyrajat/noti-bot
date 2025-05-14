@@ -1,5 +1,6 @@
 import asyncio
 from bot.imports import Bot, Dispatcher, TELEGRAM_BOT_TOKEN, DefaultBotProperties, WebsiteMonitor, storage, load_website_configs, ENABLE_REPEAT_NOTIFICATION, DEFAULT_REPEAT_INTERVAL, SINGLE_MODE, register_handlers, send_startup_message, monitor_websites, send_notification, DEV_MODE, debug_print
+from bot.special_site import SpecialSiteMonitor
 
 async def main():
     # Initialize bot with minimal memory footprint
@@ -13,7 +14,10 @@ async def main():
     website_configs = load_website_configs()
     for site_id, config in website_configs.items():
         if config["enabled"] and config["url"]:
-            storage["websites"][site_id] = WebsiteMonitor(site_id, config)
+            if site_id == "special_site":
+                storage["websites"][site_id] = SpecialSiteMonitor(site_id, config)
+            else:
+                storage["websites"][site_id] = WebsiteMonitor(site_id, config)
 
     # Initialize repeat interval if enabled
     if ENABLE_REPEAT_NOTIFICATION and storage["repeat_interval"] is None:
